@@ -1,0 +1,12 @@
+pomidor_malinowy
+200
+10
+pomidor_zolty
+34
+7
+gruszka
+200
+3
+jablko
+20
+40
