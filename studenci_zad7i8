@@ -1,0 +1,110 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <iomanip>
+#include "json.hpp"
+#include <algorithm>
+#include <numeric>
+
+using json = nlohmann::json;
+
+
+struct Student
+{
+    int id;
+    std::string firstName;
+    std::string lastName;
+    float score;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Student, id, firstName, lastName, score)
+};
+
+void load(std::vector<Student> &s, const std::string &filename){
+    std::ifstream file(filename);
+    json data;
+    file >> data;
+    s = data;
+    std::cout << "wczytano " << s.size() << " studentów \n";
+}
+
+void save(std::vector<Student> &s,const std::string &filename){
+    std::ofstream file(filename);
+    json data;
+    data = s;
+    file << data.dump(4);
+}
+
+std::string Grade(float score) {
+    if (score >= 90.0) return "5";
+    if (score >= 80.0) return "4+";
+    if (score >= 70.0) return "4";
+    if (score >= 60.0) return "3+";
+    if (score >= 50.0) return "3";
+    return "2";
+}
+
+void show(const std::vector<Student> &s) {
+    for (const auto& s : s) {
+        std::cout << "[" << s.id << "] " << s.firstName << " " 
+                  << s.lastName << " - Wynik: " << std::fixed 
+                  << std::setprecision(1) << s.score << "%" << " Ocena: " << Grade(s.score) << std::endl;
+    }
+}
+
+
+void sorting(std::vector<Student>& s) {
+   std::sort(s.begin(), s.end(), [](const Student &a, const Student &b) {
+        return a.score > b.score;
+   });
+}
+
+void find_studnet(const std::vector<Student> &s, int targetID){
+
+    auto it = std::find_if(s.begin(), s.end(), [&targetID](const Student &a){
+        return a.id == targetID;
+    });
+    std::cout <<" Szukany student: " << "[" << it->id << "] " << it->firstName << " " 
+                  << it->lastName << " - Wynik: " << std::fixed 
+                  << std::setprecision(1) << it->score << "%" << " Ocena: " << Grade(it->score) << std::endl;
+}
+
+void average_score(const std::vector<Student> &s){
+    double sum =  std::accumulate(s.begin(), s.end(), 0.0, [](double current_sum, const Student &a) {
+        return current_sum + a.score;
+    });
+    double average = sum / s.size();
+    std::cout << "Średnia: " << std::fixed
+    << std::setprecision(1) << average << "%" << std::endl;
+}
+
+void pass(const std::vector<Student> &s){
+    int passed = std::count_if(s.begin(), s.end(), [](const Student &a) {
+        return a.score >= 50.0;
+    });
+    int failed = s.size() - passed;
+    std::cout << "Zdało: " << passed << " Studentów " << std::endl;
+    std::cout << "Nie zdało: " << failed << " Studentów " << std::endl;
+}
+
+void remove(std::vector<Student> &s){
+    auto failed = std::remove_if(s.begin(), s.end(), [](const Student &a) {
+        return a.score < 50.0;
+    });
+    s.erase(failed, s.end());
+}
+
+int main(){
+    int targetID = 27789;
+    std::vector<Student> s;
+    std::string filename = "dane.json";
+    load(s, filename);
+    sorting(s);
+    show(s);
+    find_studnet(s,targetID);
+    average_score(s);
+    pass(s);
+    remove(s);
+    std::cout << "Lista studentow po usunieciu tych co nie zdali " << std::endl;
+    show(s);
+    save(s,filename);
+    return 0;
+}
