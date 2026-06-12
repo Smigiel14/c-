@@ -1,0 +1,156 @@
+#include <string>
+#include <random>
+#include <iostream>
+#include <cctype>
+#include <algorithm> 
+namespace strutil{
+
+std::string convertCase(const std::string &s, bool upperCase){
+    std::string nowy;
+    for (size_t i = 0; i < s.length(); i++)
+    {
+        if(upperCase==true){
+            nowy += toupper(s[i]);
+        }
+        else
+        {
+            nowy += tolower(s[i]);
+        }
+    }
+    return nowy;
+}
+
+bool isPalindrome(const std::string &s){
+    
+    for(size_t i=0; i<s.length()/2; i++ ){
+        if(s[i] != s[s.length()-1-i])
+        return false;
+    }
+    return true;
+}
+
+std::string rand(size_t n){
+    std::string slowo = "";
+    std::string alfabet = "abcdefghijklmnopqrstuvwxyz";
+    for (size_t i =0; i<n; i++){
+         slowo += alfabet[::rand() % alfabet.length()];
+    }
+    return slowo;
+}
+
+
+size_t longestWordLength(const std::string &s){
+    size_t maxdlugosc = 0;
+    size_t aktualnadlugosc = 0;
+    for (size_t i = 0; i < s.length(); i++){
+        char c = s[i];
+        if (c == ' '){
+            if (aktualnadlugosc > maxdlugosc){
+                maxdlugosc = aktualnadlugosc;    
+            }
+            aktualnadlugosc = 0;
+        }else{
+                aktualnadlugosc++;
+            }
+        }
+        if (aktualnadlugosc > maxdlugosc){
+            maxdlugosc = aktualnadlugosc;
+    }
+    return maxdlugosc;
+}
+
+
+void rot13(std::string &s){
+    
+    for (size_t i = 0; i < s.length(); i++){
+        if (s[i] >= 97 && s[i] <= 122) {
+            s[i] = 97 + (s[i] - 97 + 13) % 26;
+        } else if (s[i] >= 65 && s[i] <= 90){
+            s[i] = 65 + (s[i] - 65 + 13) % 26;
+        }
+    }
+}
+
+size_t countOccurence(const std::string &s1, const std::string &s2){
+    size_t count = 0;
+    for (size_t i = 0; i <= s2.length() - s1.length();){
+        if(s2.substr(i, s1.length()) == s1){
+            count++;
+            i+= s1.length();
+        } else {
+            i++;
+        }
+    }
+    return count;
+}
+
+
+}
+int main(){
+    srand(time(NULL));
+    std::string wyraz;
+    std::string strutil;
+    std::string glowny;
+    std::string poszukiwany;
+     
+    std::cout << "                      ====MENU====\n";
+    std::cout << "(1) zwraca nowy string zapisany tylko dużymi lub małymi literami,\n";
+    std::cout << "(2) sprawdza, czy string jest palindromem,\n";
+    std::cout << "(3) zwraca nowy string wygenerowany losowo (tylko małe litery) o długości podanej w argumencie\n";
+    std::cout << "(4)zwraca długość najdłuższego słowa (za słowa uznajemy ciągi oddzielone spacją)\n";
+    std::cout << "(5) koduje istniejący już string ((in-place)) szyfrem Cezara o przesunięciu 13 (ROT13),\n";
+    std::cout << "(6)która przyjmuje dwa stringi (główny i poszukiwany), która zlicza ilość wystąpień (wersja uproszczona: bez nachodzących na siebie fragmentów).\n";
+    int wybor;
+    std::cin >> wybor;
+    std::cin.ignore();
+    if (wybor==1){
+        bool znaki;
+        std::cout << "podaj string\n"; std::getline(std::cin, wyraz);
+        int wielkosc;
+        std::cout << " DUŻE-1 małe-2\n"; std::cin >> wielkosc;
+        
+        if (wielkosc == 1){
+            znaki = true;
+        }else{
+            znaki = false;
+        }
+        std::cout << strutil::convertCase(wyraz, znaki) << std::endl;
+    }
+
+    if (wybor==2){
+        std::cout << "podaj string\n"; std::getline(std::cin, wyraz);
+
+        strutil::isPalindrome(wyraz);
+        if (strutil::isPalindrome(wyraz)){
+            std::cout<<"jest!";
+        }else{
+            std::cout<<"nie jest :<";
+        }
+    }
+
+    if (wybor==3){
+        size_t n;
+        std::cout<<"Podaj n";
+        std::cin >> n;
+        std::cout << strutil::rand(n);
+    }
+
+    if (wybor==4){
+        std::cout << "podaj string\n"; std::getline(std::cin, wyraz);
+        std::cout << strutil::longestWordLength(wyraz);
+    }
+
+    if (wybor==5){
+        std::cout << "podaj string\n"; std::getline(std::cin, wyraz);
+        strutil::rot13(wyraz);
+        std::cout << wyraz;
+    }
+
+
+    if (wybor==6){
+        std::cout << "podaj glowny\n"; std::getline(std::cin, glowny);
+        std::cout << "podaj puszkiwany\n"; std::getline(std::cin, poszukiwany);
+        std::cout << strutil::countOccurence(poszukiwany, glowny);
+    }
+    return 0;
+}
